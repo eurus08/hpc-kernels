@@ -1,0 +1,16 @@
+# Build artifacts
+*.o
+*.obj
+bin/
+
+# NumPy oracle outputs (regeneratable, not meant to be committed)
+reference/*.npy
+
+# Editor/OS cruft
+*~
+.vscode/
+.idea/
+.DS_Store
+
+# Stray results not meant to be committed (matches plan's original spec)
+results/*.csv~
