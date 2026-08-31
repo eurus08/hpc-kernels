@@ -5,12 +5,14 @@ bin/
 
 # NumPy oracle outputs (regeneratable, not meant to be committed)
 reference/*.npy
+*.npy
 
 # Editor/OS cruft
 *~
 .vscode/
 .idea/
 .DS_Store
+__pycache__
 
 # Stray results not meant to be committed (matches plan's original spec)
 results/*.csv~
