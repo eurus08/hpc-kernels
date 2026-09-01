@@ -11,7 +11,7 @@ CFLAGS += -DUSE_DOUBLE
 NVFLAGS += -DUSE_DOUBLE
 endif
 
-.PHONY: all clean reduction_serial reduction_omp
+.PHONY: all clean reduction_serial reduction_omp reduction_mpi
 
 all:
 	@echo "Scaffolding only — no targets wired up yet (Phase 1)."
@@ -27,6 +27,12 @@ bin/reduction_omp: kernels/reduction/omp.c common/genmat.c common/verify.c commo
 	$(CC) $(CFLAGS) $(OMPFLAGS) $^ -lm -o $@
 
 reduction_omp: bin/reduction_omp
+
+bin/reduction_mpi: kernels/reduction/mpi.c common/genmat.c common/verify.c common/bench.c
+	@mkdir -p bin
+	$(MPICC) $(CFLAGS) $^ -lm -o $@
+
+reduction_mpi: bin/reduction_mpi
 
 clean:
 	rm -f *.o
