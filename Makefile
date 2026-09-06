@@ -11,7 +11,7 @@ CFLAGS += -DUSE_DOUBLE
 NVFLAGS += -DUSE_DOUBLE
 endif
 
-.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial
+.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp
 
 all:
 	@echo "Scaffolding only — no targets wired up yet (Phase 1)."
@@ -51,6 +51,12 @@ bin/matmul_serial: kernels/matmul/serial.c common/genmat.c common/verify.c commo
 	$(CC) $(CFLAGS) $^ -lm -o $@
 
 matmul_serial: bin/matmul_serial
+
+bin/matmul_omp: kernels/matmul/omp.c common/genmat.c common/verify.c common/bench.c
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $(OMPFLAGS) $^ -lm -o $@
+
+matmul_omp: bin/matmul_omp
 
 clean:
 	rm -f *.o
