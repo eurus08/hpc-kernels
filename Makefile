@@ -11,7 +11,7 @@ CFLAGS += -DUSE_DOUBLE
 NVFLAGS += -DUSE_DOUBLE
 endif
 
-.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial
+.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial gaussian_mpi
 
 all:
 	@echo "Scaffolding only — no targets wired up yet (Phase 1)."
@@ -81,6 +81,12 @@ bin/gaussian_serial: kernels/gaussian/serial.c common/genmat.c common/verify.c c
 	$(CC) $(CFLAGS) $^ -lm -o $@
 
 gaussian_serial: bin/gaussian_serial
+
+bin/gaussian_mpi: kernels/gaussian/mpi.c common/genmat.c common/verify.c common/bench.c
+	@mkdir -p bin
+	$(MPICC) $(CFLAGS) $^ -lm -o $@
+
+gaussian_mpi: bin/gaussian_mpi
 
 clean:
 	rm -f *.o
