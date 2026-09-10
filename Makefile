@@ -11,7 +11,7 @@ CFLAGS += -DUSE_DOUBLE
 NVFLAGS += -DUSE_DOUBLE
 endif
 
-.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial gaussian_mpi transpose_serial
+.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial gaussian_mpi transpose_serial transpose_omp
 
 all:
 	@echo "Scaffolding only — no targets wired up yet (Phase 1)."
@@ -93,6 +93,12 @@ bin/transpose_serial: kernels/transpose/serial.c common/genmat.c common/verify.c
 	$(CC) $(CFLAGS) $^ -lm -o $@
 
 transpose_serial: bin/transpose_serial
+
+bin/transpose_omp: kernels/transpose/omp.c common/genmat.c common/verify.c common/bench.c
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $(OMPFLAGS) $^ -lm -o $@
+
+transpose_omp: bin/transpose_omp
 
 clean:
 	rm -f *.o
