@@ -14,6 +14,10 @@
  * drift out of sync.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     int n;        /* problem size, from -n (required) */
     int reps;     /* timed repetitions, from -r (default 5) */
@@ -54,5 +58,9 @@ void bench_report_csv(FILE *out,
                        int n, int threads,
                        double time_min, double time_med,
                        double gflops, double gbytes_s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HPC_KERNELS_BENCH_H */
