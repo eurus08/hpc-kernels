@@ -15,6 +15,10 @@
  * Matrices are stored row-major, flattened: A[i*cols + j] is row i, col j.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Fills rows*cols entries with uniform values in [-1, 1). Works for
  * matrices (rows, cols both > 1) or vectors (cols == 1). */
 void genmat_random(real *A, int rows, int cols, unsigned int seed);
@@ -27,5 +31,9 @@ void genmat_diag_dominant(real *A, int n, unsigned int seed);
 
 /* Fills an n x n symmetric positive-definite matrix. */
 void genmat_spd(real *A, int n, unsigned int seed);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HPC_KERNELS_GENMAT_H */
