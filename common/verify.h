@@ -14,6 +14,15 @@
  *
  * Returns 1 if relative error <= tol, 0 otherwise. Prints either way.
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int verify_result(const real *computed, const real *expected, int n, real tol);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HPC_KERNELS_VERIFY_H */
