@@ -21,7 +21,7 @@ extern "C" {
 typedef struct {
     int n;        /* problem size, from -n (required) */
     int reps;     /* timed repetitions, from -r (default 5) */
-    int threads;  /* thread count or MPI rank count, from -t (default 1) */
+    int threads;  /* thread count from -t (default 1). OpenMP threads, or threads-per-rank in MPI+OpenMP hybrids -- MPI rank count is set via `mpirun -np`, NOT this field. */
 } bench_config;
 
 /* Parses -n <int> -r <int> -t <int> from argv. -n is required; -r and -t
