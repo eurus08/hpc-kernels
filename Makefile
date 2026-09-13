@@ -11,10 +11,18 @@ CFLAGS += -DUSE_DOUBLE
 NVFLAGS += -DUSE_DOUBLE
 endif
 
-.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial gaussian_mpi transpose_serial transpose_omp
+.PHONY: all clean reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp matmul_serial matmul_omp matmul_mpi matvec_serial matvec_mpi gaussian_serial gaussian_mpi transpose_serial transpose_omp reduce_atomic reduce_shared reduce_shuffle transpose_naive transpose_tiled jacobi saxpy
 
-all:
-	@echo "Scaffolding only — no targets wired up yet (Phase 1)."
+# Builds every wired binary in one go. Kept in sync by hand as new targets
+# are added below — if you add a bin/... rule, add its short name here too.
+all: reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp \
+     matmul_serial matmul_omp matmul_mpi \
+     matvec_serial matvec_mpi \
+     gaussian_serial gaussian_mpi \
+     transpose_serial transpose_omp \
+     reduce_atomic reduce_shared reduce_shuffle \
+     transpose_naive transpose_tiled \
+     jacobi saxpy
 
 bin/reduction_serial: kernels/reduction/serial.c common/genmat.c common/verify.c common/bench.c
 	@mkdir -p bin
@@ -99,6 +107,53 @@ bin/transpose_omp: kernels/transpose/omp.c common/genmat.c common/verify.c commo
 	$(CC) $(CFLAGS) $(OMPFLAGS) $^ -lm -o $@
 
 transpose_omp: bin/transpose_omp
+
+# --- CUDA targets ---
+# No common/verify.c here: the .cu files don't #include verify.h — their
+# correctness is checked externally against reference/check_*.py oracles,
+# not via a linked-in verify_result() call like the CPU kernels use.
+
+bin/reduce_atomic: kernels/reduction/reduce_atomic.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+reduce_atomic: bin/reduce_atomic
+
+bin/reduce_shared: kernels/reduction/reduce_shared.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+reduce_shared: bin/reduce_shared
+
+bin/reduce_shuffle: kernels/reduction/reduce_shuffle.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+reduce_shuffle: bin/reduce_shuffle
+
+bin/transpose_naive: kernels/transpose/transpose_naive.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+transpose_naive: bin/transpose_naive
+
+bin/transpose_tiled: kernels/transpose/transpose_tiled.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+transpose_tiled: bin/transpose_tiled
+
+bin/jacobi: kernels/jacobi/jacobi.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+jacobi: bin/jacobi
+
+bin/saxpy: kernels/saxpy/saxpy.cu common/genmat.c common/bench.c
+	@mkdir -p bin
+	$(NVCC) $(NVFLAGS) $^ -lm -o $@
+
+saxpy: bin/saxpy
 
 clean:
 	rm -f *.o
