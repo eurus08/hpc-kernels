@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
     real h_result = 0;
     CUDA_CHECK(cudaMemcpy(&h_result, d_result, sizeof(real), cudaMemcpyDeviceToHost));
 
-    printf("sanity: sum = " REAL_FMT "\n", h_result);
+    fprintf(stderr, "sanity: sum = " REAL_FMT "\n", h_result);
 
     double gflops   = (double)n / time_min / 1e9;
     double gbytes_s = ((double)n * sizeof(real)) / time_min / 1e9;

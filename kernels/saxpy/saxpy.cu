@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     /* Copy the final result back for the correctness check. */
     CUDA_CHECK(cudaMemcpy(h_y, d_y, n * sizeof(real), cudaMemcpyDeviceToHost));
 
-    printf("sanity: y[0] = " REAL_FMT "\n", h_y[0]);
+    fprintf(stderr, "sanity: y[0] = " REAL_FMT "\n", h_y[0]);
 
     /* SAXPY moves 3*n elements of memory (read x, read y, write y)
      * and performs 2*n floating-point ops (one multiply, one add per

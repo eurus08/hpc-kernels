@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
     CUDA_CHECK(cudaMemcpy(h_B, d_B, (size_t)n * n * sizeof(real),
                            cudaMemcpyDeviceToHost));
 
-    printf("sanity: B[0][1] = " REAL_FMT ", A[1][0] = " REAL_FMT "\n",
+    fprintf(stderr, "sanity: B[0][1] = " REAL_FMT ", A[1][0] = " REAL_FMT "\n",
            h_B[0 * n + 1], h_A[1 * n + 0]);
 
     double gflops   = 0.0;

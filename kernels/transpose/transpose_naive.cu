@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
      * changes which values exist, so sum(B) == sum(A) even for a
      * badly broken kernel) -- print one specific off-diagonal pair
      * instead, which must match exactly if correct. */
-    printf("sanity: B[0][1] = " REAL_FMT ", A[1][0] = " REAL_FMT "\n",
+    fprintf(stderr, "sanity: B[0][1] = " REAL_FMT ", A[1][0] = " REAL_FMT "\n",
            h_B[0 * n + 1], h_A[1 * n + 0]);
 
     /* Pure data movement: 0 FLOPs. One read of A, one write of B,

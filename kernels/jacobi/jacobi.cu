@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
      * check_jacobi.py exactly -- only meaningful at -n 512 -r 100,
      * the oracle's fixed correctness-check configuration. */
     int check_i = 256, check_j = 256;
-    printf("sanity: grid[%d][%d] = " REAL_FMT "\n", check_i, check_j,
+    fprintf(stderr, "sanity: grid[%d][%d] = " REAL_FMT "\n", check_i, check_j,
            h_grid[check_i * m + check_j]);
 
     /* Per-iteration cost: n*n interior points, each doing 4 adds + 1

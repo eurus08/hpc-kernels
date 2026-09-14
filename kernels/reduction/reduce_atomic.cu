@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
     real h_result = 0;
     CUDA_CHECK(cudaMemcpy(&h_result, d_result, sizeof(real), cudaMemcpyDeviceToHost));
 
-    printf("sanity: sum = " REAL_FMT "\n", h_result);
+    fprintf(stderr, "sanity: sum = " REAL_FMT "\n", h_result);
 
     /* n additions total; memory traffic is dominated by reading x
      * (n elements) -- the atomic writes all target one single shared
