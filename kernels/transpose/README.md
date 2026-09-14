@@ -1,6 +1,6 @@
 # Transpose
 
-**The algorithm.** Matrix transpose, `B[j][i] = A[i][j]` — pure data rearrangement, zero arithmetic. Per the build plan's own glossary, this makes it **bandwidth-bound**: the bottleneck is moving bytes, not computing anything, which shows up clearly in the results below.
+**The algorithm.** Matrix transpose, `B[j][i] = A[i][j]` — pure data rearrangement, zero arithmetic. That makes it **bandwidth-bound**: the bottleneck is moving bytes, not computing anything, which shows up clearly in the results below.
 
 **The decomposition strategy.**
 - **`serial.c`** — baseline nested loop.
@@ -23,5 +23,5 @@
 | double | 5760 | 76.19% | 99.87% |
 
 **What was surprising.**
-- OpenMP speedup essentially caps at **~1.5× and stays flat from 2 threads all the way to 12** — a clean, direct confirmation that transpose is bandwidth-bound: extra CPU cores can't help once everyone is competing for the same memory bus, in sharp contrast to matmul's genuine 3.4× speedup at 12 threads on the *same* hardware for the *same* thread counts. This is the clearest compute-bound-vs-bandwidth-bound contrast anywhere in this repo.
-- The naive→tiled CUDA jump (43.5%→99.1% float, 76.2%→99.9% double) is coalescing made visible: the entire gap traces to converting non-coalesced strided memory transactions into coalesced ones by routing through shared memory first — nothing else changed about the algorithm.
+- OpenMP speedup essentially caps at **~1.5×** and stays flat from 2 threads all the way to 12 — a clean, direct confirmation that transpose is bandwidth-bound: extra CPU cores can't help once everyone is competing for the same memory bus, in sharp contrast to matmul's genuine 3.4× speedup at 12 threads on the *same* hardware for the *same* thread counts. It's the clearest compute-bound-vs-bandwidth-bound contrast anywhere in this repo.
+- The naive→tiled CUDA jump (43.5%→99.1% float, 76.2%→99.9% double) makes coalescing visible: the entire gap traces to converting non-coalesced strided memory transactions into coalesced ones by routing through shared memory first — nothing else about the algorithm changed.

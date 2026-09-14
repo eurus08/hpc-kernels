@@ -2,11 +2,10 @@ name: CI
 
 # Runs on GitHub's own cloud runners (ubuntu-latest), NOT on the
 # maintainer's actual openSUSE Leap 16 development machine. This is a
-# deliberate, documented split (see build_plan.md): CI's job is proving
-# the code compiles cleanly on a generic, widely-available Linux image
-# using apt-get, not reproducing the local zypper-based dev environment.
-# All real benchmark numbers in this repo came from the actual dev
-# machine's hardware, never from CI.
+# deliberate split: CI's job is proving the code compiles cleanly on a
+# generic, widely-available Linux image using apt-get, not reproducing
+# the local zypper-based dev environment. All real benchmark numbers in
+# this repo came from the actual dev machine's hardware, never from CI.
 
 on:
   push:
@@ -93,9 +92,9 @@ jobs:
   # GitHub-hosted runners have no GPU hardware at all, so nothing in
   # this job ever executes a CUDA kernel. This only proves the seven
   # .cu files compile and link cleanly with nvcc against the same
-  # CUDA 12.8 toolkit line the project targets (build_plan.md: do not
-  # upgrade past 12.8, it drops Pascal/sm_61 support). No performance
-  # or correctness claim of any kind comes from this job.
+  # CUDA 12.8 toolkit line the project targets (do not upgrade past
+  # 12.8 -- it drops Pascal/sm_61 support). No performance or
+  # correctness claim of any kind comes from this job.
   # ---------------------------------------------------------------
   cuda-compile-only:
     runs-on: ubuntu-latest

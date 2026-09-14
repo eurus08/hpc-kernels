@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 
 # Peak figures, confirmed via deviceQuery on this machine (Quadro P2000
 # Max-Q, Pascal, 768 CUDA cores @ 1468 MHz max clock) and bandwidthTest
-# (re-run and reconfirmed this session -- see HANDOFF.md for the note
-# that this superseded Phase 0's original ~72.4 GB/s figure).
+# (re-run and reconfirmed later on, superseding an earlier ~72.4 GB/s
+# measurement from the first pass).
 PEAK_BANDWIDTH_GBPS = 82.66
 PEAK_GFLOPS_FP32 = 2 * 768 * 1.468       # 2 FLOPs/cycle (FMA) x cores x GHz
 PEAK_GFLOPS_FP64 = PEAK_GFLOPS_FP32 / 32  # Pascal non-flagship FP64 = 1/32 of FP32

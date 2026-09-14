@@ -26,8 +26,8 @@
  * transposing fundamentally exchanges "which dimension is contiguous."
  * Swapping the loop order (outer j, inner i) just flips WHICH buffer
  * gets the bad pattern -- it doesn't fix anything. Fixing this properly
- * needs cache-blocking / tiling, which is exactly what the CUDA phase's
- * shared-memory tiled transpose (D3 in the build plan) demonstrates.
+ * needs cache-blocking / tiling, which is exactly what the CUDA
+ * shared-memory tiled transpose (transpose_tiled.cu) demonstrates.
  * This file is deliberately the un-fixed naive baseline, same "one
  * correct version first, let benchmarking reveal the bottleneck"
  * approach every other kernel here has followed.
