@@ -60,7 +60,7 @@ jobs:
             grep -q -- "-> PASS" /tmp/out.txt
           done
           echo "=== bin/reduction_mpi -m pi (2 ranks) ==="
-          mpirun --allow-run-as-root -np 2 bin/reduction_mpi -n 100000 -r 2 -m pi | tee /tmp/out.txt
+          mpirun --allow-run-as-root --oversubscribe -np 2 bin/reduction_mpi -n 100000 -r 2 -m pi | tee /tmp/out.txt
           grep -q -- "-> PASS" /tmp/out.txt
 
       - name: Smoke test -- reduction (-m sum), matmul, matvec, gaussian, transpose
@@ -73,15 +73,15 @@ jobs:
           echo "--- matmul (serial/omp/mpi) ---"
           bin/matmul_serial -n 64 -r 2 -t 1
           bin/matmul_omp -n 64 -r 2 -t 2
-          mpirun --allow-run-as-root -np 4 bin/matmul_mpi -n 64 -r 2
+          mpirun --allow-run-as-root --oversubscribe -np 4 bin/matmul_mpi -n 64 -r 2
 
           echo "--- matvec (serial/mpi) ---"
           bin/matvec_serial -n 256 -r 2 -t 1
-          mpirun --allow-run-as-root -np 2 bin/matvec_mpi -n 256 -r 2
+          mpirun --allow-run-as-root --oversubscribe -np 2 bin/matvec_mpi -n 256 -r 2
 
           echo "--- gaussian (serial/mpi) ---"
           bin/gaussian_serial -n 64 -r 2 -t 1
-          mpirun --allow-run-as-root -np 2 bin/gaussian_mpi -n 64 -r 2
+          mpirun --allow-run-as-root --oversubscribe -np 2 bin/gaussian_mpi -n 64 -r 2
 
           echo "--- transpose (serial/omp) ---"
           bin/transpose_serial -n 256 -r 2 -t 1
