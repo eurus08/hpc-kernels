@@ -1,0 +1,120 @@
+name: CI
+
+# Runs on GitHub's own cloud runners (ubuntu-latest), NOT on the
+# maintainer's actual openSUSE Leap 16 development machine. This is a
+# deliberate, documented split (see build_plan.md): CI's job is proving
+# the code compiles cleanly on a generic, widely-available Linux image
+# using apt-get, not reproducing the local zypper-based dev environment.
+# All real benchmark numbers in this repo came from the actual dev
+# machine's hardware, never from CI.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # ---------------------------------------------------------------
+  # Job 1: build + test the CPU paradigms (serial, OpenMP, MPI).
+  #
+  # IMPORTANT HONESTY NOTE, read before trusting a green checkmark here:
+  # only reduction's source files call verify_result() for an inline
+  # PASS/FAIL -- and even then, only in `-m pi` mode (reduction's
+  # `-m sum` mode has no closed-form reference, so it explicitly skips
+  # inline verification; see its own stderr note when run). Matmul,
+  # matvec, gaussian, and transpose are NOT wired to verify_result at
+  # all -- their real correctness checking happens externally, by hand,
+  # against reference/check_*.py (NumPy/SciPy oracles), not inside CI.
+  # For those four kernels this job only SMOKE TESTS: confirms the
+  # binary builds and runs to completion without crashing. A green
+  # checkmark on this job means "compiles and runs", plus "verified
+  # correct" for reduction specifically -- it does NOT mean every
+  # kernel's numeric output was checked here.
+  # ---------------------------------------------------------------
+  build-and-test-cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools and OpenMPI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libopenmpi-dev openmpi-bin
+
+      - name: Build all CPU targets (serial, OpenMP, MPI)
+        run: |
+          make reduction_serial reduction_omp reduction_mpi reduction_mpi_subcomm reduction_mpi_omp \
+               matmul_serial matmul_omp matmul_mpi \
+               matvec_serial matvec_mpi \
+               gaussian_serial gaussian_mpi \
+               transpose_serial transpose_omp
+
+      - name: Real correctness check -- reduction (-m pi), inline verify_result
+        run: |
+          set -e
+          for bin in bin/reduction_serial bin/reduction_omp; do
+            echo "=== $bin -m pi ==="
+            $bin -n 100000 -r 2 -t 2 -m pi | tee /tmp/out.txt
+            grep -q -- "-> PASS" /tmp/out.txt
+          done
+          echo "=== bin/reduction_mpi -m pi (2 ranks) ==="
+          mpirun --allow-run-as-root -np 2 bin/reduction_mpi -n 100000 -r 2 -m pi | tee /tmp/out.txt
+          grep -q -- "-> PASS" /tmp/out.txt
+
+      - name: Smoke test -- reduction (-m sum), matmul, matvec, gaussian, transpose
+        run: |
+          set -e
+          echo "--- reduction serial/omp, sum mode (no inline oracle -- exit-code only) ---"
+          bin/reduction_serial -n 100000 -r 2 -t 2 -m sum
+          bin/reduction_omp -n 100000 -r 2 -t 2 -m sum
+
+          echo "--- matmul (serial/omp/mpi) ---"
+          bin/matmul_serial -n 64 -r 2 -t 1
+          bin/matmul_omp -n 64 -r 2 -t 2
+          mpirun --allow-run-as-root -np 4 bin/matmul_mpi -n 64 -r 2
+
+          echo "--- matvec (serial/mpi) ---"
+          bin/matvec_serial -n 256 -r 2 -t 1
+          mpirun --allow-run-as-root -np 2 bin/matvec_mpi -n 256 -r 2
+
+          echo "--- gaussian (serial/mpi) ---"
+          bin/gaussian_serial -n 64 -r 2 -t 1
+          mpirun --allow-run-as-root -np 2 bin/gaussian_mpi -n 64 -r 2
+
+          echo "--- transpose (serial/omp) ---"
+          bin/transpose_serial -n 256 -r 2 -t 1
+          bin/transpose_omp -n 256 -r 2 -t 2
+
+  # ---------------------------------------------------------------
+  # Job 2: CUDA -- COMPILE ONLY.
+  #
+  # GitHub-hosted runners have no GPU hardware at all, so nothing in
+  # this job ever executes a CUDA kernel. This only proves the seven
+  # .cu files compile and link cleanly with nvcc against the same
+  # CUDA 12.8 toolkit line the project targets (build_plan.md: do not
+  # upgrade past 12.8, it drops Pascal/sm_61 support). No performance
+  # or correctness claim of any kind comes from this job.
+  # ---------------------------------------------------------------
+  cuda-compile-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CUDA toolkit (compile-only environment, no GPU present)
+        uses: Jimver/cuda-toolkit@v0.2.21
+        id: cuda-toolkit
+        with:
+          cuda: '12.8.0'
+          method: 'network'
+          sub-packages: '["nvcc", "cudart"]'
+
+      - name: Confirm nvcc is available
+        run: nvcc --version
+
+      - name: Compile (link, but never run) all CUDA targets
+        run: |
+          make reduce_atomic reduce_shared reduce_shuffle \
+               transpose_naive transpose_tiled \
+               jacobi saxpy
